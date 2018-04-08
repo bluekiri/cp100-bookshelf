@@ -1,0 +1,207 @@
+
+<!doctype html>
+
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+  <meta name="theme-color" content="#4F7DC9">
+  <meta charset="UTF-8">
+  <title>BLUEKIRI - Demo GCP BigQuery</title>
+  <script src="../../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
+  <link rel="import" href="../../elements/codelab.html">
+  <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Source+Code+Pro:400|Roboto:400,300,400italic,500,700|Roboto+Mono">
+  <style is="custom-style">
+    body {
+      font-family: "Roboto",sans-serif;
+      background: var(--google-codelab-background, --paper-grey-300);
+    }
+  </style>
+  
+</head>
+<body unresolved class="fullbleed">
+
+  <google-codelab title="BLUEKIRI - Demo GCP BigQuery"
+                  environment="web"
+                  feedback-link="">
+    
+      <google-codelab-step label="Introduction" duration="0">
+        <p>BigQuery is a fully-managed, petabyte-scale, low-cost enterprise data warehouse for analytics. BigQuery is serverless. You do not need to set up and manage clusters.</p>
+<p>A BigQuery dataset resides in a project. A dataset contains one or more tables with data.</p>
+<p>In this codelab, you will use the BigQuery web UI to query public datasets, load your own data, and export data to a Cloud Storage bucket.</p>
+<h2 class="checklist"><strong>What you&#39;ll learn</strong></h2>
+<ul class="checklist">
+<li>How to query public datasets</li>
+<li>Export results</li>
+</ul>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Describe the dataset" duration="0">
+        <h2><strong>Step 1</strong></h2>
+<p>Open the Google Cloud Platform Console, and if necessary, select the &#34;demo-gcp&#34; project.</p>
+<h2><strong>Step 2</strong></h2>
+<p>Go to Bigquery</p>
+<h2><strong>Step 3</strong></h2>
+<p>In the lateral bar, in<strong> Filter by id or label type</strong>, type <strong>yellow</strong>. In <strong>Public Datasets</strong>, expand <strong>nyc-tlc:yellow</strong> (<a href="https://bigquery.cloud.google.com/dataset/bigquery-public-data:new_york" target="_blank">bigquery-public-data:new_york</a>). Click over the table <strong>trips</strong>.</p>
+<h2><strong>Step 4</strong></h2>
+<p>In the main panel, first you can see the schema of the table (pay attention in the type and if the field is nullable or not).</p>
+<p>After that, click in <strong>Details</strong> button to see the size and the number of rows.</p>
+<p>Finally, click over <strong>Preview</strong> to see some records.</p>
+<h2><strong>Step 5</strong></h2>
+<p>In the main panel, first you can see the schema of the table (pay attention in the type and if the field is nullable or not).</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Query the dataset" duration="0">
+        <h2><strong>Step 1</strong></h2>
+<p>Click over <strong>Compose Query</strong> to open the SQL editor.</p>
+<h2><strong>Step 2</strong></h2>
+<p>How many trips did Yellow taxis take each month in 2015? Copy the following code</p>
+<aside class="warning"><p>Please, don&#39;t click over <strong>Run Query </strong>after paste this code</p>
+</aside>
+<pre><code>SELECT
+  TIMESTAMP_TRUNC(pickup_datetime,
+    MONTH) month,
+  COUNT(*) trips
+FROM
+  `bigquery-public-data.new_york.tlc_yellow_trips_2015`
+GROUP BY
+  1
+ORDER BY
+  1</code></pre>
+<p>After copy the query, you will see the error</p>
+<pre><code>Error: 3.17 - 4.7: Unrecognized function timestamp_trunc [Try using standard SQL (https://cloud.google.com/bigquery/docs/reference/standard-sql/enabling-standard-sql)]</code></pre>
+<p>Click over <strong>Show Options</strong> and uncheck <strong>Use Legacy SQL</strong> (don&#39;t click<strong> Run Query</strong> yet). You could observe that the console shows that it&#39;s a valid query and the query will process 1.09 GB when run.</p>
+<aside class="special"><p>It&#39;s a good practice see how much data will process a query before execute.</p>
+<p>Take care that it&#39;s an estimation.</p>
+</aside>
+<p>Click over <strong>Run Query</strong> now.</p>
+<p>When the query will finish, you could see the results and you could see the how much time the query takes and how many data was processed.</p>
+<p>Finally, we are going to execute the same query to see how the cache works (you could see that the time is slower and you see that it&#39;s marked as cached)</p>
+<h2><strong>Step 3</strong></h2>
+<p>What was the average speed of Yellow taxi trips in 2015?</p>
+<pre><code>SELECT
+  EXTRACT(HOUR
+  FROM
+    pickup_datetime) hour,
+  ROUND(AVG(trip_distance / TIMESTAMP_DIFF(dropoff_datetime,
+        pickup_datetime,
+        SECOND))*3600, 1) speed
+FROM
+  `bigquery-public-data.new_york.tlc_yellow_trips_2015`
+WHERE
+  trip_distance &gt; 0
+  AND fare_amount/trip_distance BETWEEN 2
+  AND 10
+  AND dropoff_datetime &gt; pickup_datetime
+GROUP BY
+  1
+ORDER BY
+  1</code></pre>
+<h2><strong>Step 4</strong></h2>
+<p>You can use Cloud Console too. Go back to Google Console and in the top right corner of the console window, click the Activate Google Cloud Shell button (<img style="max-width: 19.00px" src="img/2f6b3347d4d0ebfd.png">).</p>
+<pre>bq query --use_legacy_sql=false &#39;
+SELECT
+  EXTRACT(DAYOFWEEK
+  FROM
+    pickup_datetime) DAYOFWEEK,
+  ROUND(AVG(trip_distance / TIMESTAMP_DIFF(dropoff_datetime,
+        pickup_datetime,
+        SECOND))*3600, 1) speed
+FROM
+  `bigquery-public-data.new_york.tlc_yellow_trips_2015`
+WHERE
+  trip_distance &gt; 0
+  AND fare_amount/trip_distance BETWEEN 2
+  AND 10
+  AND dropoff_datetime &gt; pickup_datetime
+GROUP BY
+  1
+ORDER BY
+  1&#39;</pre>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Exporting the results" duration="0">
+        <h2><strong>Step 1</strong></h2>
+<p>We will execute the previous query again from BigQuery console.</p>
+<pre><code>SELECT
+  EXTRACT(DAYOFWEEK
+  FROM
+    pickup_datetime) DAYOFWEEK,
+  ROUND(AVG(trip_distance / TIMESTAMP_DIFF(dropoff_datetime,
+        pickup_datetime,
+        SECOND))*3600, 1) speed
+FROM
+  `bigquery-public-data.new_york.tlc_yellow_trips_2015`
+WHERE
+  trip_distance &gt; 0
+  AND fare_amount/trip_distance BETWEEN 2
+  AND 10
+  AND dropoff_datetime &gt; pickup_datetime
+GROUP BY
+  1
+ORDER BY
+  1</code></pre>
+<p>Below the results, you have the option to:</p>
+<ul>
+<li><strong>Download as CSV</strong></li>
+<li><strong>Download as JSON</strong></li>
+<li><strong>Save as Table</strong></li>
+<li><strong>Save to Google Sheets</strong></li>
+</ul>
+<p><img style="max-width: 624.00px" src="img/ae1011ef1bb79463.png"></p>
+<h2>Step 2</h2>
+<p>We will save the query as <strong>Table</strong>. Before that, we need to create the dataset. Select the current project (demo-gcp) and select <strong>Create new dataset</strong></p>
+<p><img style="max-width: 601.00px" src="img/d2dc9d68855bf5a8.png"></p>
+<h2><strong>Step 3</strong></h2>
+<p>In <strong>Dataset ID</strong> put demo, select the EU <strong>region</strong> and click <strong>OK</strong>.</p>
+<h2>Step 4</h2>
+<p>Click over <strong>Save as Table</strong>. In the field <strong>Destination dataset, </strong>type <strong>demo</strong> and don&#39;t change <strong>Destination table</strong> from the default.</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Clean up solution" duration="0">
+        <h2><strong>Step 1</strong></h2>
+<p>Expand the dataset options for <strong>demo</strong> and select <strong>Delete dataset</strong>.</p>
+<p><img style="max-width: 512.00px" src="img/98e88dc9feb5681d.png"></p>
+
+
+      </google-codelab-step>
+    
+  </google-codelab>
+
+  <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    ga('create', 'UA-49880327-14', 'auto');
+
+    (function() {
+      var gaCodelab = '';
+      if (gaCodelab) {
+        ga('create', gaCodelab, 'auto', {name: 'codelab'});
+      }
+
+      var gaView;
+      var parts = location.search.substring(1).split('&');
+      for (var i = 0; i < parts.length; i++) {
+        var param = parts[i].split('=');
+        if (param[0] === 'viewga') {
+          gaView = param[1];
+          break;
+        }
+      }
+      if (gaView && gaView !== gaCodelab) {
+        ga('create', gaView, 'auto', {name: 'view'});
+      }
+    })();
+  </script>
+
+</body>
+</html>

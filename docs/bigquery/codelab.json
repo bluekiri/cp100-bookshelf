@@ -1,0 +1,24 @@
+{
+  "environment": "web",
+  "source": "13AAcYFH-Q_ylebhPu27wgZc1OTzmQ1TMm-W1MCKmcXw",
+  "format": "html",
+  "prefix": "../../",
+  "mainga": "UA-49880327-14",
+  "updated": "2018-04-08T20:56:03Z",
+  "id": "bigquery",
+  "duration": 0,
+  "title": "BLUEKIRI - Demo GCP BigQuery",
+  "author": "david.verdejo",
+  "summary": "Demo GCP BigQuery",
+  "theme": "bigquery",
+  "status": [
+    "draft"
+  ],
+  "category": [
+    "BigQuery"
+  ],
+  "tags": [
+    "demo"
+  ],
+  "url": "bigquery"
+}
