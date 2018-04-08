@@ -24,7 +24,7 @@ coverage.xml
 
 *.log
 
-lib/
+#lib/
 *.internal
 /secrets.tar.gz
 /secrets.tar
