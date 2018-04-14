@@ -1,0 +1,36 @@
+gcloud beta container --project "poc-thumbor" clusters create "cluster-1" --zone "europe-west1-b" --username "admin" --cluster-version "1.8.8-gke.0" --machine-type "n1-standard-1" --image-type "COS" --disk-size "100" --scopes "https://www.googleapis.com/auth/compute","https://www.googleapis.com/auth/devstorage.read_only","https://www.googleapis.com/auth/logging.write","https://www.googleapis.com/auth/monitoring","https://www.googleapis.com/auth/servicecontrol","https://www.googleapis.com/auth/service.management.readonly","https://www.googleapis.com/auth/trace.append" --num-nodes "3" --network "default" --enable-cloud-logging --enable-cloud-monitoring --subnetwork "default" --addons HorizontalPodAutoscaling,HttpLoadBalancing,KubernetesDashboard
+
+gcloud container clusters get-credentials "cluster-1" --zone "europe-west1-b"
+
+curl https://raw.githubusercontent.com/kubernetes/helm/master/scripts/get | bash
+
+kubectl --namespace kube-system create sa davidverdejo
+kubectl create clusterrolebinding davidverdejo --clusterrole cluster-admin --serviceaccount=kube-system:davidverdejo
+helm init --service-account davidverdejo
+helm version
+
+helm repo add stable https://kubernetes-charts.storage.googleapis.com
+helm repo update
+
+gcloud compute addresses create magento-public-ip
+gcloud compute addresses list
+
+helm install --name magento-poc \
+  --set magentoUsername=admin,magentoPassword=Bluek1r1,mariadb.mariadbRootPassword=Bluek1r1,magentoLoadBalancerIP=35.195.4.35 \
+    stable/magento
+
+kubectl get pods
+
+
+
+Clean up:
+* destroy kubernetes cluster
+* remove fw rules
+* release public ip 
+
+
+
+Links:
+
+https://hub.kubeapps.com/charts/stable/magento
+http://zero-to-jupyterhub.readthedocs.io/en/latest/setup-helm.html
